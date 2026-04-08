@@ -1,26 +1,34 @@
 import os
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 import psycopg2
 from psycopg2 import OperationalError
+from dotenv import load_dotenv
 from flask import Flask, redirect, render_template, request, url_for
+
+load_dotenv()
 
 app = Flask(__name__)
 
 
+def preparar_database_url(database_url):
+    parsed = urlparse(database_url)
+    query = dict(parse_qsl(parsed.query))
+
+    # Render suele requerir SSL cuando usamos la URL externa.
+    if parsed.hostname and parsed.hostname.endswith("render.com"):
+        query.setdefault("sslmode", "require")
+
+    updated_query = urlencode(query)
+    return urlunparse(parsed._replace(query=updated_query))
+
+
 def conectar_db():
-    database_url = os.environ.get("postgresql://nubesdb_user:UFdc6R8x1xyn5pisLmY0RH5tgLdoPPNu@dpg-d7bbpohaae7s73c0jb5g-a/nubesdb")
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        raise OperationalError("DATABASE_URL no esta configurada.")
 
-    if database_url:
-        return psycopg2.connect(database_url, connect_timeout=5)
-
-    return psycopg2.connect(
-        dbname=os.environ.get("nubesdb"),
-        user=os.environ.get("nubesdb_user"),    
-        password=os.environ.get("UFdc6R8x1xyn5pisLmY0RH5tgLdoPPNu"),
-        host=os.environ.get("dpg-d7bbpohaae7s73c0jb5g-a.oregon-postgres.render.com"),
-        port=os.environ.get("5432"),
-        connect_timeout=5,
-    )
+    return psycopg2.connect(preparar_database_url(database_url), connect_timeout=5)
 
 
 def crear_persona(dni, nombre, apellido, direccion, telefono):
