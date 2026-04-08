@@ -14,11 +14,11 @@ def conectar_db():
         return psycopg2.connect(database_url, connect_timeout=5)
 
     return psycopg2.connect(
-        dbname=os.environ.get("DB_NAME"),
-        user=os.environ.get("DB_USER"),
-        password=os.environ.get("DB_PASSWORD"),
-        host=os.environ.get("DB_HOST"),
-        port=os.environ.get("DB_PORT", "5432"),
+        dbname=os.environ.get("nubesdb"),
+        user=os.environ.get("nubesdb_user"),
+        password=os.environ.get("UFdc6R8x1xyn5pisLmY0RH5tgLdoPPNu"),
+        host=os.environ.get("dpg-d7bbpohaae7s73c0jb5g-a.oregon-postgres.render.com"),
+        port=os.environ.get("5432"),
         connect_timeout=5,
     )
 
