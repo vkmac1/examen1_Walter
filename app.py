@@ -8,14 +8,14 @@ app = Flask(__name__)
 
 
 def conectar_db():
-    database_url = os.environ.get("DATABASE_URL")
+    database_url = os.environ.get("postgresql://nubesdb_user:UFdc6R8x1xyn5pisLmY0RH5tgLdoPPNu@dpg-d7bbpohaae7s73c0jb5g-a/nubesdb")
 
     if database_url:
         return psycopg2.connect(database_url, connect_timeout=5)
 
     return psycopg2.connect(
         dbname=os.environ.get("nubesdb"),
-        user=os.environ.get("nubesdb_user"),
+        user=os.environ.get("nubesdb_user"),    
         password=os.environ.get("UFdc6R8x1xyn5pisLmY0RH5tgLdoPPNu"),
         host=os.environ.get("dpg-d7bbpohaae7s73c0jb5g-a.oregon-postgres.render.com"),
         port=os.environ.get("5432"),
