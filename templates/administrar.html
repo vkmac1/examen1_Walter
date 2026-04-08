@@ -7,45 +7,56 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Administrar Registros</h1>
-        <a href="/" class="administrar-link">Volver al registro</a>
-        <div class="separator"></div>
+    <div class="page-shell">
+        <section class="hero compact">
+            <p class="eyebrow">Panel de administracion</p>
+            <h1>Registros guardados</h1>
+            <p class="hero-copy">Consulta la informacion registrada y elimina filas cuando sea necesario.</p>
+            <a href="/" class="administrar-link">Volver al formulario</a>
+        </section>
 
-        {% if registros %}
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>DNI</th>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Direccion</th>
-                    <th>Telefono</th>
-                    <th>Accion</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for registro in registros %}
-                <tr>
-                    <td>{{ registro[0] }}</td>
-                    <td>{{ registro[1] }}</td>
-                    <td>{{ registro[2] }}</td>
-                    <td>{{ registro[3] }}</td>
-                    <td>{{ registro[4] }}</td>
-                    <td>{{ registro[5] }}</td>
-                    <td>
-                        <form action="/eliminar/{{ registro[1] }}" method="post">
-                            <button type="submit" class="delete-button">Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p class="empty-state">No hay registros guardados.</p>
-        {% endif %}
+        <section class="container card wide">
+            {% if request.args.get("error") or error %}
+            <div class="alert error">{{ request.args.get("error") or error }}</div>
+            {% endif %}
+
+            {% if registros %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>DNI</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Direccion</th>
+                            <th>Telefono</th>
+                            <th>Accion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registro in registros %}
+                        <tr>
+                            <td>{{ registro[0] }}</td>
+                            <td>{{ registro[1] }}</td>
+                            <td>{{ registro[2] }}</td>
+                            <td>{{ registro[3] }}</td>
+                            <td>{{ registro[4] }}</td>
+                            <td>{{ registro[5] }}</td>
+                            <td>
+                                <form action="/eliminar/{{ registro[1] }}" method="post">
+                                    <button type="submit" class="delete-button">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="empty-state">No hay registros guardados.</p>
+            {% endif %}
+        </section>
     </div>
 </body>
 </html>

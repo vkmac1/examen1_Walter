@@ -1,6 +1,7 @@
 import os
 
 import psycopg2
+from psycopg2 import OperationalError
 from flask import Flask, redirect, render_template, request, url_for
 
 app = Flask(__name__)
@@ -10,7 +11,7 @@ def conectar_db():
     database_url = os.environ.get("DATABASE_URL")
 
     if database_url:
-        return psycopg2.connect(database_url)
+        return psycopg2.connect(database_url, connect_timeout=5)
 
     return psycopg2.connect(
         dbname=os.environ.get("DB_NAME"),
@@ -18,6 +19,7 @@ def conectar_db():
         password=os.environ.get("DB_PASSWORD"),
         host=os.environ.get("DB_HOST"),
         port=os.environ.get("DB_PORT", "5432"),
+        connect_timeout=5,
     )
 
 
@@ -64,7 +66,8 @@ def eliminar_persona_por_dni(dni):
 @app.route("/")
 def index():
     mensaje = request.args.get("mensaje")
-    return render_template("index.html", mensaje=mensaje)
+    error = request.args.get("error")
+    return render_template("index.html", mensaje=mensaje, error=error)
 
 
 @app.route("/registrar", methods=["POST"])
@@ -75,22 +78,46 @@ def registrar():
     direccion = request.form["direccion"]
     telefono = request.form["telefono"]
 
-    crear_persona(dni, nombre, apellido, direccion, telefono)
-    return redirect(url_for("index", mensaje="Registro exitoso"))
+    try:
+        crear_persona(dni, nombre, apellido, direccion, telefono)
+        return redirect(url_for("index", mensaje="Registro exitoso"))
+    except OperationalError:
+        return redirect(
+            url_for(
+                "index",
+                error="No se pudo conectar a la base de datos. Revisa tu DATABASE_URL en Render.",
+            )
+        )
 
 
 @app.route("/administrar")
 def administrar():
-    registros = obtener_registros()
-    return render_template("administrar.html", registros=registros)
+    try:
+        registros = obtener_registros()
+        return render_template("administrar.html", registros=registros, error=None)
+    except OperationalError:
+        return render_template(
+            "administrar.html",
+            registros=[],
+            error="No se pudo consultar la base de datos. Verifica la conexion en Render.",
+        )
 
 
 @app.route("/eliminar/<dni>", methods=["POST"])
 def eliminar_registro(dni):
-    eliminar_persona_por_dni(dni)
-    return redirect(url_for("administrar"))
+    try:
+        eliminar_persona_por_dni(dni)
+        return redirect(url_for("administrar"))
+    except OperationalError:
+        return redirect(
+            url_for(
+                "administrar",
+                error="No se pudo eliminar el registro porque la base de datos no responde.",
+            )
+        )
 
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    debug = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    app.run(host="0.0.0.0", port=port, debug=debug)

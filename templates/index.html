@@ -7,55 +7,57 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Registro de Persona</h1>
-        
-        <a href="/administrar" class="administrar-link">Administrar Registros</a>
-        <div class="separator"></div>
-        <form action="/registrar" method="post">
-            <div class="form-group">
-                <label for="dni">DNI:</label>
-                <input type="text" id="dni" name="dni" required>
+    <div class="page-shell">
+        <section class="hero">
+            <p class="eyebrow">Sistema de registro</p>
+            <h1>Registro de Personas</h1>
+            <p class="hero-copy">
+                Guarda datos personales en PostgreSQL y administra los registros desde una interfaz simple y ordenada.
+            </p>
+            <a href="/administrar" class="administrar-link">Ver registros</a>
+        </section>
+
+        <section class="container card">
+            <div class="card-header">
+                <h2>Nuevo registro</h2>
+                <p>Completa los datos y presiona guardar.</p>
             </div>
-            <div class="form-group">
-                <label for="nombre">Nombre:</label>
-                <input type="text" id="nombre" name="nombre" required>
-            </div>
-            <div class="form-group">
-                <label for="apellido">Apellido:</label>
-                <input type="text" id="apellido" name="apellido" required>
-            </div>
-            <div class="form-group">
-                <label for="direccion">Dirección:</label>
-                <input type="text" id="direccion" name="direccion">
-            </div>
-            <div class="form-group">
-                <label for="telefono">Teléfono:</label>
-                <input type="text" id="telefono" name="telefono">
-            </div>
-            <button type="submit">Registrar</button>
-        </form>
+
+            {% if mensaje %}
+            <div class="alert success">{{ mensaje }}</div>
+            {% endif %}
+
+            {% if error %}
+            <div class="alert error">{{ error }}</div>
+            {% endif %}
+
+            <form action="/registrar" method="post" class="registro-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="dni">DNI</label>
+                        <input type="text" id="dni" name="dni" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Telefono</label>
+                        <input type="text" id="telefono" name="telefono">
+                    </div>
+                    <div class="form-group">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="apellido">Apellido</label>
+                        <input type="text" id="apellido" name="apellido" required>
+                    </div>
+                    <div class="form-group form-group-full">
+                        <label for="direccion">Direccion</label>
+                        <input type="text" id="direccion" name="direccion">
+                    </div>
+                </div>
+
+                <button type="submit" class="primary-button">Guardar registro</button>
+            </form>
+        </section>
     </div>
-
-    <div id="modal" class="modal {% if mensaje %}show{% endif %}">
-        <div class="modal-content">
-            <span class="close" onclick="cerrarMensaje()">&times;</span>
-            <p>{{ mensaje or 'Registro exitoso' }}</p>
-        </div>
-    </div>
-
-    <script>
-        function cerrarMensaje() {
-            var modal = document.getElementById('modal');
-            modal.style.display = 'none';
-        }
-
-        window.onclick = function(event) {
-            var modal = document.getElementById('modal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        };
-    </script>
 </body>
 </html>
